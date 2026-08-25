@@ -1,0 +1,42 @@
+.fondo{
+    overflow: hidden;
+}
+.cuadro-registro{
+    margin-top:15%;
+    background-color: rgba(240, 240, 240, 0.8);
+    width: 30%;
+    height: 350px;
+    padding: 10px;
+    margin-left: 36%;
+    border-radius: 18px;
+}
+.cuadro-registro span{
+    font-family: cursive;
+    margin-left: 20px;
+    font-size: 20px;
+    text-decoration: underline 3px;
+}
+.cuadro-registro input{
+    border: none;
+    border-bottom: solid 3px darkblue;
+    border-radius: 3px;
+}.cuadro-registro form input{
+    display: block;
+    margin: 10px 30px;
+    width: 80%; 
+    padding: 8px;
+}
+.cuadro-registro form button{
+    display: block;
+    margin-top: 15px;
+    width: 60%;
+    padding: 10px;
+    margin-left: 20%;
+    background-color: darkblue;
+    color: darkgoldenrod;
+    font-family: 'Times New Roman', Times, serif;
+}
+.cuadro-registro form button:hover{
+    background-color: black;
+    color: white;
+}

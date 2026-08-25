@@ -1,0 +1,37 @@
+
+.content-EP{
+    margin-left: 1%;
+    display: flex;
+    gap:16px;
+    padding: 6px;
+    justify-content: center;
+    
+}
+.content-EP1 h1{
+    color: white;
+    text-shadow: 2px 2px 5px rgb(48, 192, 228);
+    
+}
+.content-EP input{
+    background-color: black;
+    border-radius: 10px;
+    color: white;
+    font-size: 15px;
+}
+.content-EP input::placeholder{
+    color:white
+}
+.content-EP select{
+    border-radius: 10px;
+    background-color: darkred;
+    color: white;
+}
+.content-EP button{
+    padding: 10px;
+    background-color: black;
+    color:white;
+    line-height: 5px;
+}
+.content-EP button:hover{
+    background-color: red;
+}

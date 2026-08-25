@@ -1,0 +1,29 @@
+.home{
+    overflow: hidden;
+}
+.content{
+    margin-top:10px;
+    color: white;
+    font-size: 4vw;
+    text-align: center; 
+    align-items: center;
+    font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+}
+.content button{
+    border: solid darkgoldenrod;
+    background-color:darkgoldenrod;
+    color: white;
+    font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+    font-size: 3vw;
+}
+.content button:hover{
+    background-color: bisque;
+    border-color:bisque ;
+    color:black;
+}
+.opcion{
+    margin-left: 40%;
+    display: flex;
+    align-items: center;
+    gap: 10px; 
+}

@@ -1,0 +1,42 @@
+.Encu{
+    background-color: rgba(244, 247, 244, 0.8);
+    border-radius: 10px;
+    margin-top: 20px;
+     margin-left: 32%;
+     width: 600px;
+     padding:  4px 10px ;
+     text-align: center;  
+     margin-bottom: 10px;
+}
+.Encu-opcion{
+    display: flex;
+}
+.Encu-opcion button{
+     margin-left: 8;
+    background-color: white;
+    font-size:12px;
+    margin-left: 15px;
+}
+.Encu-opcion button:hover{
+    background-color: black;
+    color: white;
+}
+.campo-encuesta{
+    background-color: rgba(244, 247, 244, 0.8);
+    border-radius: 10px;
+    width: 800px;
+    margin-left: 27.5%;
+}
+.campo-encuesta button{
+    background-color: aqua;
+    margin-left: 2%;
+    border: none;
+}
+.campo-encuesta button:hover{
+    background-color: darkblue;
+    color:white;
+}
+.body{
+    background-color: rgba(244, 247, 244, 0.8);
+}
+

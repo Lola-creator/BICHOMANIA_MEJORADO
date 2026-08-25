@@ -1,0 +1,104 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+.box{
+    background-color: black ;
+    color: white;
+    display: flex;
+    width: 100%;
+    min-height: 60px;
+    justify-content: space-between;
+    flex-wrap: wrap;
+}
+.logo{
+    display: flex;
+    align-items: center;
+    gap: 30px;
+    margin-left: 15px;
+    font-family:Georgia, 'Times New Roman', Times, serif;
+}
+.logo img{
+    width: 50px;
+}
+.BusquedaBar{
+    display: flex;
+    align-items: center;
+
+}
+.BusquedaBar span{
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+    border: solid white 2px;
+    border-right: none;
+    color:aqua;
+    height: 40px;
+    padding: 0 5px;
+    line-height: 40px;
+}
+
+.BusquedaBar button{
+    background: none;
+    border-radius: 2px;
+    border: solid white 1.5px;
+    cursor: pointer;
+    top: 0;
+    bottom: 0;
+    right:0;
+    margin: auto;
+    padding: 10px 15px;
+}
+.BusquedaBar button:hover{
+    background-color: rgb(40, 40, 53);
+}
+.BusquedaBar img{
+    width: 20px;
+}
+.iconos-header {
+  display: flex;
+  align-items: center;
+  margin-right:30px;
+}
+.iconos {
+  display: flex;
+  align-items: center;
+  gap: 40px;
+}
+.btn-im{
+    background: none;
+    border: none;
+    border-radius:5px;
+    cursor: pointer;
+    padding: 0;
+}
+.btn-im:hover{
+    background-color: rgb(40, 40, 53);
+}
+.btn-im img{
+    width: 40px;
+}
+.menu-icon{
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    cursor: pointer;
+}
+.menu-icon span{
+    width: 20px;
+    height : 3px;
+    background-color: white;
+}
+.menu-icon:hover{
+    background-color: rgb(40, 40, 53);
+}
+.especial{
+    display: flex;
+    gap: 10px
+}
+.especial button{
+    background-color: none;
+    padding: 2px 5px;
+    font-size: 15px;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    color:white;
+    border-bottom: solid white;
+}
+.especial button:hover{
+    background-color: rgba(39, 212, 224, 0.493);
+}
