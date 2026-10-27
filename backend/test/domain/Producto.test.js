@@ -64,4 +64,32 @@ describe("Entidad Producto", () => {
     });
 
 
+    describe("cambiarPrecio", () => {
+        test("actualiza el precio", () => {
+            producto.cambiarPrecio(150);
+            expect(producto.precio).toBe(150);
+        });
+
+        test("rechaza un precio negativo y conserva el anterior", () => {
+            expect(() => producto.cambiarPrecio(-1)).toThrow(ErrorValidacion);
+            expect(producto.precio).toBe(100);
+        });
+    });
+
+    describe("aplicarDescuento", () => {
+        test("reduce el precio según el porcentaje", () => {
+            producto.aplicarDescuento(20);
+            expect(producto.precio).toBe(80);
+        });
+
+        test.each([0, -10, 100, 150, "abc"])(
+            "rechaza el descuento inválido: %p",
+            (porcentaje) => {
+                expect(() => producto.aplicarDescuento(porcentaje))
+                    .toThrow(ErrorValidacion);
+                expect(producto.precio).toBe(100);
+            }
+        );
+    });
+
 });
