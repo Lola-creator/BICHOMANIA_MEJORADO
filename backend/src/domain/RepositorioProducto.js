@@ -6,4 +6,6 @@ class IProductoRepository {
   async buscar(filtros)          { throw new Error("No implementado"); } 
   async obtenerDetalle(id)       { throw new Error("No implementado"); } 
 }
+
+
 module.exports = IProductoRepository;
