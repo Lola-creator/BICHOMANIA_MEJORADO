@@ -92,4 +92,30 @@ describe("Entidad Producto", () => {
         );
     });
 
+    describe("imagen", () => {
+        test("un producto nuevo no tiene imagen", () => {
+            expect(producto.tieneImagen()).toBe(false);
+        });
+
+        test("asignarImagen guarda la ruta", () => {
+            producto.asignarImagen("/uploads/123.png");
+            expect(producto.imagen).toBe("/uploads/123.png");
+            expect(producto.tieneImagen()).toBe(true);
+        });
+
+        test("rechaza una ruta vacía", () => {
+            expect(() => producto.asignarImagen("")).toThrow(ErrorValidacion);
+        });
+    });
+
+    describe("perteneceACategoria", () => {
+        test("devuelve true si coincide la categoría", () => {
+            expect(producto.perteneceACategoria(2)).toBe(true);
+        });
+
+        test("devuelve false si no coincide", () => {
+            expect(producto.perteneceACategoria(9)).toBe(false);
+        });
+    });
+
 });
