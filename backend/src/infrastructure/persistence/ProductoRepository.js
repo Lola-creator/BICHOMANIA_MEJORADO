@@ -13,6 +13,9 @@ class ProductoRepository extends RepositorioProducto {
       const [r] = await this.dbp.query(
         `INSERT INTO productos(nombre, caracteristica, precio, id_categoria, id_competencia, imagen)
          VALUES (?, ?, ?, ?, ?, ?)`,
+
+
+         
         [producto.nombre, producto.caracteristica, producto.precio,
          producto.idCategoria, producto.idCompetencia, producto.imagen]
       );

@@ -2,8 +2,11 @@ const Producto = require("../domain/RepositorioProducto");
 const { ErrorNoEncontrado } = require("../domain/errores");
 
 class ProductoService {
+
   constructor(repositorio, almacenImagenes) {
     this.repositorio = repositorio;
+
+    
     this.almacenImagenes = almacenImagenes;
   }
 

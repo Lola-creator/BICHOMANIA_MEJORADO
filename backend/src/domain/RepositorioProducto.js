@@ -5,7 +5,11 @@ const exigirImplementacion = (nombreMetodo) => {
 class RepositorioProducto {
     async crear(producto) {                
         exigirImplementacion("crear");
+    
+    
+    
     }
+
 
     async actualizar(producto) {
         exigirImplementacion("actualizar");
