@@ -1,0 +1,4 @@
+reports/
+.env
+node_modules/
+uploads/
