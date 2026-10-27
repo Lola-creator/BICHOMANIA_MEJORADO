@@ -7,10 +7,32 @@ const bcrypt = require('bcrypt');
 const excel = require('exceljs');
 const multer = require('multer');
 const path = require("path");
+
+const db = mysql.createPool({
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME,
+  port: 3306,
+  waitForConnections: true,
+  connectionLimit: 2,
+  queueLimit: 0,
+  ssl: { rejectUnauthorized: false } 
+});
+
+
+
 const CarritoService = require("./src/application/CarritoService");
 const CarritoRepository = require("./src/infrastructure/persistence/CarritoRepository");
 const ErrorPersistencia = require("./src/application/ErrorPersistencia");
+const ProductoService = require("./src/application/ProductoService");
+const ProductoRepository = require("./src/infrastructure/persistence/ProductoRepository");
+const AlmacenImagenes = require("./src/infrastructure/storage/AlmacenImagenes");
+
+const productoService = new ProductoService(
+  new ProductoRepository(db.promise()),  new AlmacenImagenes());
 const { ErrorValidacion, ErrorNoEncontrado } = require("./src/domain/errores");
+
 require('dotenv').config(); 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -35,17 +57,7 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage });
 
-const db = mysql.createPool({
-  host: process.env.DB_HOST,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME,
-  port: 3306,
-  waitForConnections: true,
-  connectionLimit: 2,
-  queueLimit: 0,
-  ssl: { rejectUnauthorized: false } 
-});
+
 module.exports = db;
 const carritoService = new CarritoService(new CarritoRepository(db.promise()));
 app.get('/', (req, res) => {
@@ -189,184 +201,47 @@ app.post('/login/employee', (req, res) => {
     });
 });
 
-app.post('/productos/agregar', upload.single('imagen'), async (req, res) => {
+const codigoHttpDeError = (error) => {
+    if (error instanceof ErrorValidacion) return 400;
+    if (error instanceof ErrorNoEncontrado) return 404;
+    return 500;
+};
 
-    const { nombre, 
-      caracteristica, 
-      precio, 
-      id_categoria, 
-      id_competencia, 
-      id_marca, 
-      id_equipo,
-      imagen
-    } = req.body;
-    const dbp = db.promise();
-
+const responderCarrito = (casoDeUso) => async (req, res) => {
     try {
-        const [insertProducto] = await dbp.query(`
-            INSERT INTO productos(nombre, caracteristica, precio, id_categoria, id_competencia, imagen)
-            VALUES (?, ?, ?, ?, ?, ?)
-        `, [nombre, 
-          caracteristica,
-           precio, 
-           id_categoria, 
-           id_competencia, 
-           imagen]);
-
-        const id_producto = insertProducto.insertId;
-
-        if (id_marca && id_marca !== "") {
-            await dbp.query(`
-                INSERT INTO marcas_productos(id_marca, id_producto)
-                VALUES (?, ?)
-            `, [id_marca, id_producto]);
-        }
-
-        if (id_equipo && id_equipo !== "") {
-            await dbp.query(`
-                INSERT INTO equipos_productos(id_equipo, id_producto)
-                VALUES (?, ?)
-            `, [id_equipo, id_producto]);
-        }
-
-        res.json({ message: 'Producto agregado correctamente', id_producto });
-    } 
-    catch (error) {
-        console.error(error);
-        res.status(500).json({ error: 'Error al insertar el producto' });
+        res.send(await casoDeUso(req));
+    } catch (error) {
+        const codigoHttp = codigoHttpDeError(error);
+        const mensaje = error instanceof ErrorPersistencia || codigoHttp !== 500
+            ? error.message
+            : "Error interno del servidor";
+        res.status(codigoHttp).send(mensaje);
     }
-});
+};
 
-app.delete("/productos/eliminar/:id", async (req, res) => {
-    const { id } = req.params;
-    const dbp = db.promise(); 
-    try {
-       
-        const [rows] = await dbp.query(
-            "SELECT imagen FROM productos WHERE id_producto = ?",
-            [id]
-        );
+app.post('/productos/agregar', upload.single('imagen'), responderCarrito((req) => {
+  const { nombre, caracteristica, precio, id_categoria, id_competencia,
+          id_marca, id_equipo } = req.body;
+  const rutaImagen = req.file ? `/uploads/${req.file.filename}` : null;
+  return productoService.agregar({
+    nombre, caracteristica, precio,
+    idCategoria: id_categoria, idCompetencia: id_competencia,
+    idMarca: id_marca, idEquipo: id_equipo,
+    imagen: rutaImagen,
+  });
+}));
 
-        if (rows.length === 0) {
-            return res.status(404).json({ error: "Producto no encontrado" });
-        }
+app.delete("/productos/eliminar/:id", responderCarrito((req) =>
+  productoService.eliminar(req.params.id)
+));
 
-        const imagen = rows[0].imagen;
+app.get("/productos", responderCarrito((req) =>
+  productoService.listar(req.query)
+));
 
-        await dbp.query("DELETE FROM equipos_productos WHERE id_producto = ?", [id]);
-        await dbp.query("DELETE FROM marcas_productos WHERE id_producto = ?", [id]);
-        await dbp.query("DELETE FROM productos WHERE id_producto = ?", [id]);
-        if (imagen) {
-            const fs = require("fs");
-
-            const ruta = `.${imagen}`; 
-
-            fs.unlink(ruta, (err) => {
-                if (err) console.log("⚠ No se pudo borrar imagen:", ruta);
-            });
-        }
-
-        res.json({ message: "Producto eliminado correctamente" });
-
-    } catch (err) {
-        console.error("ERROR AL ELIMINAR PRODUCTO:", err);
-        res.status(500).json({ error: "Error al eliminar producto" });
-    }
-});
-
-app.get('/productos', (req, res) => {
-    const { categoria, marca, equipo, competencia, nombre } = req.query;
-
-    let query = `
-        SELECT DISTINCT 
-            p.id_producto,
-            p.nombre AS nombre_producto, 
-            p.precio,
-            p.caracteristica,
-            p.imagen,
-            c.nombre AS categoria,
-            cmp.nombre AS competencia,
-            m.nombre AS marca,
-            e.nombre AS equipo
-        FROM productos p
-        LEFT JOIN categoria c ON p.id_categoria = c.id_categoria
-        LEFT JOIN competencias cmp ON p.id_competencia = cmp.id_competencia
-        LEFT JOIN marcas_productos mp ON p.id_producto = mp.id_producto
-        LEFT JOIN marcas m ON mp.id_marca = m.id_marca
-        LEFT JOIN equipos_productos ep ON p.id_producto = ep.id_producto
-        LEFT JOIN equipos e ON ep.id_equipo = e.id_equipo
-        WHERE 1 = 1
-    `;
-
-    let params = [];
-
-    if (categoria) {
-        query += " AND p.id_categoria = ?";
-        params.push(categoria);
-    }
-
-    if (competencia) {
-        query += " AND p.id_competencia = ?";
-        params.push(competencia);
-    }
-
-    if (marca) {
-        query += " AND mp.id_marca = ?";
-        params.push(marca);
-    }
-
-    if (equipo) {
-        query += " AND ep.id_equipo = ?";
-        params.push(equipo);
-    }
-
-    if (nombre) {
-        query += " AND p.nombre LIKE ?";
-        params.push(`%${nombre}%`);
-    }
-
-    db.query(query, params, (err, results) => {
-        if (err) {
-            console.error(err);
-            return res.status(500).send("Error al filtrar productos");
-        }
-        res.json(results);
-    });
-});
-
-app.get('/producto/:id', (req, res) => {
-    const { id } = req.params;
-
-    const query = `
-        SELECT 
-            p.id_producto,
-            p.nombre AS nombre_producto,
-            p.precio,
-            p.caracteristica,
-            p.imagen,
-            c.nombre AS categoria,
-            cmp.nombre AS competencia,
-            m.nombre AS marca,
-            e.nombre AS equipo
-        FROM productos p
-        LEFT JOIN categoria c ON p.id_categoria = c.id_categoria
-        LEFT JOIN competencias cmp ON p.id_competencia = cmp.id_competencia
-        LEFT JOIN marcas_productos mp ON p.id_producto = mp.id_producto
-        LEFT JOIN marcas m ON mp.id_marca = m.id_marca
-        LEFT JOIN equipos_productos ep ON p.id_producto = ep.id_producto
-        LEFT JOIN equipos e ON ep.id_equipo = e.id_equipo
-        WHERE p.id_producto = ?
-        LIMIT 1;
-    `;
-
-    db.query(query, [id], (err, results) => {
-        if (err) {
-            console.error(err);
-            return res.status(500).send("Error al obtener producto");
-        }
-        res.json(results[0]);
-    });
-});
+app.get("/producto/:id", responderCarrito((req) =>
+  productoService.obtenerDetalle(req.params.id)
+));
 
 app.get('/categorias', (req, res) => {
     db.query("SELECT * FROM categoria", (err, results) => {
@@ -536,23 +411,6 @@ app.get("/encuestas", (req, res) => {
         res.send(results);
     });
 });
-const codigoHttpDeError = (error) => {
-    if (error instanceof ErrorValidacion) return 400;
-    if (error instanceof ErrorNoEncontrado) return 404;
-    return 500;
-};
-
-const responderCarrito = (casoDeUso) => async (req, res) => {
-    try {
-        res.send(await casoDeUso(req));
-    } catch (error) {
-        const codigoHttp = codigoHttpDeError(error);
-        const mensaje = error instanceof ErrorPersistencia || codigoHttp !== 500
-            ? error.message
-            : "Error interno del servidor";
-        res.status(codigoHttp).send(mensaje);
-    }
-};
 
 app.get("/carrito", responderCarrito((req) =>
     carritoService.obtenerCarrito(req.query.id_cliente)
@@ -1344,73 +1202,16 @@ doc.fontSize(12).text(`Fecha del pedido: ${fechaEmision2}\n\n`);
   }
 });
 
-app.put('/productos/editar/:id', upload.single('imagen'), async (req, res) => {
-    const dbp = db.promise();
-    const { id } = req.params;
-
-    const {
-        nombre,
-        caracteristica,
-        precio,
-        id_categoria,
-        id_competencia,
-        id_marca,
-        id_equipo
-    } = req.body;
-
-    try {
-        const [prodActual] = await dbp.query(
-            "SELECT imagen FROM productos WHERE id_producto = ?",
-            [id]
-        );
-
-        if (prodActual.length === 0) {
-            return res.status(404).json({ error: "Producto no encontrado" });
-        }
-
-        let imagenNueva = prodActual[0].imagen;
-
-        if (req.file) {
-            imagenNueva = `/uploads/${req.file.filename}`;
-
-            const fs = require("fs");
-            const rutaVieja = `.${prodActual[0].imagen}`;
-            fs.unlink(rutaVieja, (err) => {});
-        }
-
-        await dbp.query(
-            `UPDATE productos 
-             SET nombre = ?, caracteristica = ?, precio = ?, 
-                 id_categoria = ?, id_competencia = ?, imagen = ?
-             WHERE id_producto = ?`,
-            [nombre, caracteristica, precio, id_categoria, id_competencia, imagenNueva, id]
-        );
-
-        await dbp.query("DELETE FROM marcas_productos WHERE id_producto = ?", [id]);
-
-        if (id_marca && id_marca !== "") {
-            await dbp.query(
-                "INSERT INTO marcas_productos(id_marca, id_producto) VALUES (?, ?)",
-                [id_marca, id]
-            );
-        }
-
-        await dbp.query("DELETE FROM equipos_productos WHERE id_producto = ?", [id]);
-
-        if (id_equipo && id_equipo !== "") {
-            await dbp.query(
-                "INSERT INTO equipos_productos(id_equipo, id_producto) VALUES (?, ?)",
-                [id_equipo, id]
-            );
-        }
-
-        res.json({ message: "Producto actualizado correctamente" });
-
-    } catch (error) {
-        console.error("ERROR AL EDITAR PRODUCTO:", error);
-        res.status(500).json({ error: "Error al editar producto" });
-    }
-});
+app.put("/productos/editar/:id", upload.single("imagen"), responderCarrito((req) => {
+  const { nombre, caracteristica, precio, id_categoria, id_competencia,
+          id_marca, id_equipo } = req.body;
+  const rutaNueva = req.file ? `/uploads/${req.file.filename}` : null;
+  return productoService.editar(req.params.id, {
+    nombre, caracteristica, precio,
+    idCategoria: id_categoria, idCompetencia: id_competencia,
+    idMarca: id_marca, idEquipo: id_equipo,
+  }, rutaNueva);
+}));
 
 app.delete("/pedido/eliminar/:id_pedido", async (req, res) => {
   const { id_pedido } = req.params;
@@ -1461,180 +1262,3 @@ app.delete("/pedido/eliminar/:id_pedido", async (req, res) => {
   }
 });
 
-/*
-// Clientes
-app.get("/clientes", (req, res) => {
-  db.query("SELECT * FROM clientes", (err, results) => {
-    if (err) return res.status(500).json({ error: "Error al obtener clientes" });
-    res.json(results);
-  });
-});
-
-// Paises
-app.get("/paises", (req, res) => {
-  db.query("SELECT * FROM paises", (err, results) => {
-    if (err) return res.status(500).json({ error: "Error al obtener paises" });
-    res.json(results);
-  });
-});
-
-// Ciudades
-app.get("/ciudades", (req, res) => {
-  db.query("SELECT * FROM ciudades", (err, results) => {
-    if (err) return res.status(500).json({ error: "Error al obtener ciudades" });
-    res.json(results);
-  });
-});
-
-// Direcciones
-app.get("/direcciones", (req, res) => {
-  db.query("SELECT * FROM direcciones", (err, results) => {
-    if (err) return res.status(500).json({ error: "Error al obtener direcciones" });
-    res.json(results);
-  });
-});
-
-// Estados
-app.get("/estados", (req, res) => {
-  db.query("SELECT * FROM estados", (err, results) => {
-    if (err) return res.status(500).json({ error: "Error al obtener estados" });
-    res.json(results);
-  });
-});
-
-// Carritos
-app.get("/carritos", (req, res) => {
-  db.query("SELECT * FROM carritos", (err, results) => {
-    if (err) return res.status(500).json({ error: "Error al obtener carritos" });
-    res.json(results);
-  });
-});
-
-// Categoria
-app.get("/categoria", (req, res) => {
-  db.query("SELECT * FROM categoria", (err, results) => {
-    if (err) return res.status(500).json({ error: "Error al obtener categorias" });
-    res.json(results);
-  });
-});
-
-// Competencias
-app.get("/competencias", (req, res) => {
-  db.query("SELECT * FROM competencias", (err, results) => {
-    if (err) return res.status(500).json({ error: "Error al obtener competencias" });
-    res.json(results);
-  });
-});
-
-// Productos
-app.get("/productos", (req, res) => {
-  db.query("SELECT * FROM productos", (err, results) => {
-    if (err) return res.status(500).json({ error: "Error al obtener productos" });
-    res.json(results);
-  });
-});
-
-// Equipos
-app.get("/equipos", (req, res) => {
-  db.query("SELECT * FROM equipos", (err, results) => {
-    if (err) return res.status(500).json({ error: "Error al obtener equipos" });
-    res.json(results);
-  });
-});
-
-// Equipos_Productos
-app.get("/equipos_productos", (req, res) => {
-  db.query("SELECT * FROM equipos_productos", (err, results) => {
-    if (err) return res.status(500).json({ error: "Error al obtener equipos_productos" });
-    res.json(results);
-  });
-});
-
-// Marcas
-app.get("/marcas", (req, res) => {
-  db.query("SELECT * FROM marcas", (err, results) => {
-    if (err) return res.status(500).json({ error: "Error al obtener marcas" });
-    res.json(results);
-  });
-});
-
-// Marcas_Productos
-app.get("/marcas_productos", (req, res) => {
-  db.query("SELECT * FROM marcas_productos", (err, results) => {
-    if (err) return res.status(500).json({ error: "Error al obtener marcas_productos" });
-    res.json(results);
-  });
-});
-
-// Items Carrito
-app.get("/items_carrito", (req, res) => {
-  db.query("SELECT * FROM items_carrito", (err, results) => {
-    if (err) return res.status(500).json({ error: "Error al obtener items_carrito" });
-    res.json(results);
-  });
-});
-
-// Pedidos
-app.get("/pedidos", (req, res) => {
-  db.query("SELECT * FROM pedidos", (err, results) => {
-    if (err) return res.status(500).json({ error: "Error al obtener pedidos" });
-    res.json(results);
-  });
-});
-
-// Pagos
-app.get("/pagos", (req, res) => {
-  db.query("SELECT * FROM pagos", (err, results) => {
-    if (err) return res.status(500).json({ error: "Error al obtener pagos" });
-    res.json(results);
-  });
-});
-
-// Boletas
-app.get("/boletas", (req, res) => {
-  db.query("SELECT * FROM boletas", (err, results) => {
-    if (err) return res.status(500).json({ error: "Error al obtener boletas" });
-    res.json(results);
-  });
-});
-
-// Empleados
-app.get("/empleados", (req, res) => {
-  db.query("SELECT * FROM empleados", (err, results) => {
-    if (err) return res.status(500).json({ error: "Error al obtener empleados" });
-    res.json(results);
-  });
-});
-
-// Encuestas
-app.get("/encuestas", (req, res) => {
-  db.query("SELECT * FROM encuestas", (err, results) => {
-    if (err) return res.status(500).json({ error: "Error al obtener encuestas" });
-    res.json(results);
-  });
-});
-
-// Detalles Encuestas
-app.get("/detalles_encuestas", (req, res) => {
-  db.query("SELECT * FROM detalles_encuestas", (err, results) => {
-    if (err) return res.status(500).json({ error: "Error al obtener detalles_encuestas" });
-    res.json(results);
-  });
-});
-
-// Votos Encuestas
-app.get("/votos_encuestas", (req, res) => {
-  db.query("SELECT * FROM votos_encuestas", (err, results) => {
-    if (err) return res.status(500).json({ error: "Error al obtener votos_encuestas" });
-    res.json(results);
-  });
-});
-
-// Reseñas
-app.get("/resena", (req, res) => {
-  db.query("SELECT * FROM resena", (err, results) => {
-    if (err) return res.status(500).json({ error: "Error al obtener reseñas" });
-    res.json(results);
-  });
-});
-*/
