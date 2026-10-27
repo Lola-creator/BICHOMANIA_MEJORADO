@@ -1,0 +1,16 @@
+
+.pago-deuda h2,p{
+    text-shadow: 2px 2px 5px goldenrod;
+    text-align: center;
+}
+.pago-deuda input{
+    margin-left: 23%;
+    text-align: center;
+    background-color: blanchedalmond;
+    font-size: 15px;
+    font-family: cursive;
+}
+.pago-deuda button{
+    margin-left: 10%;
+    background-color: black;
+}

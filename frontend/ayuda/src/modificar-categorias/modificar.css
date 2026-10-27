@@ -1,0 +1,62 @@
+.cuadro-gestion{
+    margin-top: 20px;
+    border-radius: 10px;
+    background-color: rgba(231, 243, 231, 0.8);
+    margin-left: 35%;
+    padding:  4px 10px ;
+    width: 500px;
+    text-align: center;   
+}
+.cuadro-opcion{
+    display: flex;
+    justify-content: center;
+    gap:10px;
+}
+.cuadro-ad{
+    background-color: rgba(244, 247, 244, 0.8);
+    border-radius: 10px;
+    margin-top: 20px;
+     margin-left: 35%;
+     width: 500px;
+     padding:  4px 10px ;
+     text-align: center;  
+}
+.cuadro-ad input{
+    border-radius: 10px;
+    border:none;
+    border-bottom: darkblue solid;
+    font-size: 15px;
+}
+.cuadro-ad button{
+    background-color: darkblue;
+    color: yellow;
+    height: 26px;
+    border-radius: 5px;
+}
+.cuadro-ad button:hover{
+    background-color: rgb(19, 216, 241);
+}
+.lista{
+    background-color: rgba(244, 247, 244, 0.8);
+    border-radius: 10px;
+    margin-top: 20px;
+     margin-left: 37.5%;
+     width: 400px;
+     padding:  4px 10px ;
+     text-align: center;  
+     margin-bottom: 10px;
+}
+.lista ul {
+  list-style-type: none;
+  padding: 0;   
+  margin-left: 10%; 
+}
+.lista button{
+    background-color: red;
+    font-size: 15px;
+    color:white;
+    border-radius: 5px;
+}
+.lista button:hover{
+    background-color: rgb(170, 5, 5);
+}

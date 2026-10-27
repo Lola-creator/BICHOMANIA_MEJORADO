@@ -1,0 +1,47 @@
+
+.campo-Productos h1{
+    margin-left: 10px;
+    font-size: 50px;
+    font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+}
+.opcion-producto{
+    display: flex;
+    justify-content: space-between;
+    margin-left: 25px;
+    margin-right: 25px;
+}
+.opcion-producto select{
+    font-size: 17px;
+    border-radius: 20px;
+    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+}
+.opcion-producto input{
+    border-radius: 5px;
+    background-color: black;
+    color: white;
+    font-size: 12px;
+}
+.opcion-producto button{
+    background-color: darkblue;
+    color: yellow;
+    font-size: 17px;
+    border-radius: 10px;
+
+}
+.opcion-producto button:hover{
+    background-color: green;
+    color: white;
+    
+}
+.btn-prod button{
+  margin-top: 10px;
+  width: 100%;
+  padding: 8px;
+  background-color: green;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+.btn-prod button:hover{
+    background-color: rgb(7, 212, 7);
+}

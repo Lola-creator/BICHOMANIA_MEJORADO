@@ -1,0 +1,66 @@
+.cuadro-perfil{
+    background-color: rgba(255, 255, 255, 0.8);
+    margin-left: 40%;
+    margin-top: 10%;
+    width: 400px;
+    font-style: italic;
+}
+.cuadro-perfil h2{
+    text-shadow: 2px 2px 5px rgb(218, 106, 15);
+    font-size: 20px;
+    text-align: center;
+    text-decoration: underline 3px red; 
+
+}
+.cuadro-perfil p{
+    text-align: center;
+}
+.abajo-perfil{
+    display: flex;
+    padding-bottom: 10px;
+    gap: 10px;
+    margin-left: 18px;
+}
+.abajo-perfil button{
+    border-radius: 6px;
+    background-color: black;
+    font-size: 15px;
+    color: white;
+}
+.direccion{
+    background-color: rgba(255, 255, 255, 0.8);
+    text-align: center;
+    width: 500px;
+    margin-left: 37.5%;
+
+}
+.direccion h3, p{
+    margin-left: 20px;
+}
+.AgregarDireccion{
+    text-align: center;
+    background-color: rgba(255, 255, 255, 0.8);
+     width: 500px;
+     margin-left: 37.5%;
+}
+.AgregarDireccion h3{
+    margin-left: 20px;
+    text-shadow: 2px 2px 5px rgb(255, 87, 8);
+}
+.AgregarDireccion input{
+    font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+    border-radius: 10px;
+    font-size: large;
+    border: none;
+    border-bottom: solid 2px red;
+    margin-bottom: 10px;
+}
+.opcion-dire{
+    display: flex;
+    justify-content: center;
+    gap: 15px; 
+}
+.opcion-dire select{
+    background-color: darkblue;
+    color: yellow;
+}

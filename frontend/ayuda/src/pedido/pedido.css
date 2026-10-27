@@ -1,0 +1,29 @@
+.dire-pago{
+    margin-top: 20px;
+    width: 400px;
+    margin-left: 40%;
+    background-color: rgb(255,255,255,0.7);
+    padding: 10px;
+}
+.dire-pago button{
+    background-color: blueviolet;
+    color: white;
+    margin-left: 37.5%;
+
+}
+.formulario{
+    margin-left: 25%;
+}
+.formulario h3{
+    text-shadow: 2px 2px 5px green;
+}
+.formulario input{
+    margin-bottom: 10px;
+    border : none;
+    border-bottom: 3px blue solid;
+    font-size: 15px;
+}
+.formulario select{
+    background-color: rgb(209, 238, 103);
+    display: flex;
+}

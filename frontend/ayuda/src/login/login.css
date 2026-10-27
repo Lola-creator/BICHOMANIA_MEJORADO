@@ -1,0 +1,89 @@
+
+.content-login{
+    overflow: hidden;
+    display: flex;
+    align-items:center;
+}
+.cuadro-login{
+    margin-left:20%;
+    background-color: rgba(255, 255, 255, 0.8);
+    align-items: center;
+    width:40%;
+    max-height: 500px;
+    display: flex;
+    margin-left: 30%;
+    flex-direction: column;
+    padding-bottom: 16px;
+    border-radius: 5px;
+}
+.cuadro-login form input{
+    display: block;
+    margin: 10px 0;
+    width: 100%; 
+    padding: 8px;
+}
+.cuadro-login form button{
+    display: block;
+    margin-top: 15px;
+    width: 100%;
+    padding: 10px;
+    margin-left: 5px;
+}
+.cuadro-login input{
+    border: none;
+    border-bottom: solid 5px;
+    border-color: darkgoldenrod;
+    background-color: white;
+    font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+    color:darkgoldenrod;
+    font-size: larger;
+    width: 100%;
+}
+.cuadro-login form button{
+    border-radius: 5px;
+    background-color: white;
+    font-style: italic;
+    border: solid black 2px;
+    font-size: larger;
+}
+.cuadro-login button:hover{
+    background-color: black;
+    color: white;
+}
+.regi{
+    display: flex;
+    flex-direction: column;
+}
+.regi button{
+    display: block;
+    background-color: darkblue;
+    border-radius: 5px;
+    border: solid black 2px;
+    font-size: 26px;
+    font-style: italic;
+    color: yellow;
+    margin-top: 10px;
+    width: 270px;
+    margin-left: 10px;
+}
+.regi button:hover{
+    background-color: rgb(51, 38, 241);
+}
+.input-password-container {
+  position: relative;
+  width: 100%;
+}
+
+.input-password-container input {
+  padding-right: 40px; /* espacio para el icono */
+}
+
+.input-password-container span {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  font-size: 20px;
+  color: darkgoldenrod;
+}
