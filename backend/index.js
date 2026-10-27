@@ -8,6 +8,8 @@ const excel = require('exceljs');
 const multer = require('multer');
 const path = require("path");
 
+require('dotenv').config(); 
+
 const db = mysql.createPool({
   host: process.env.DB_HOST,
   user: process.env.DB_USER,
@@ -20,8 +22,6 @@ const db = mysql.createPool({
   ssl: { rejectUnauthorized: false } 
 });
 
-
-
 const CarritoService = require("./src/application/CarritoService");
 const CarritoRepository = require("./src/infrastructure/persistence/CarritoRepository");
 const ErrorPersistencia = require("./src/application/ErrorPersistencia");
@@ -33,7 +33,7 @@ const productoService = new ProductoService(
   new ProductoRepository(db.promise()),  new AlmacenImagenes());
 const { ErrorValidacion, ErrorNoEncontrado } = require("./src/domain/errores");
 
-require('dotenv').config(); 
+
 const app = express();
 const PORT = process.env.PORT || 3001;
 
